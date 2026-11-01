@@ -39,7 +39,20 @@ GRAPHHOPPER_KEY=... python build_shapes.py
 | `GRAPHHOPPER_PROFILE` | `car` | routing profile |
 
 Requests use `pass_through=true` (no U-turns at via points), which needs flexible mode (`ch.disable=true`)
-on the server.
+on the server; if the server refuses, the script retries without it.
+
+### GitHub Actions
+
+The workflow *Build feed* (run manually) regenerates the shapes, builds and validates the feed and
+commits the result. It needs these repository secrets:
+
+| Secret | |
+|---|---|
+| `STOPS_TOKEN` | fine-grained PAT with *Contents: read* on `mvanlaar/colombia-stops` |
+| `GRAPHHOPPER_URL` | base URL of the GraphHopper server (ending in `/graphhopper`, without `/route`) |
+| `GRAPHHOPPER_KEY` | only for the public API |
+
+The routing profile is `bus` unless the repository variable `GRAPHHOPPER_PROFILE` says otherwise.
 
 The feed was originally hand-made in [ColombiaInfo/ColombiaGTFS](https://github.com/ColombiaInfo/ColombiaGTFS/tree/master/Rapido%20Medellin%20Rionegro).
 

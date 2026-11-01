@@ -1,0 +1,85 @@
+name: Build feed
+
+on:
+  workflow_dispatch:
+    inputs:
+      shapes:
+        description: "Regenerate shapes.txt with GraphHopper"
+        type: boolean
+        default: true
+      start:
+        description: "Feed start date (YYYYMMDD, empty = today)"
+        default: ""
+      end:
+        description: "Feed end date (YYYYMMDD, empty = 31 Dec next year)"
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout stop registry
+        uses: actions/checkout@v4
+        with:
+          repository: mvanlaar/colombia-stops
+          token: ${{ secrets.STOPS_TOKEN }}
+          path: colombia-stops
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install holidays
+
+      - name: Generate shapes
+        if: ${{ inputs.shapes }}
+        env:
+          GRAPHHOPPER_URL: ${{ secrets.GRAPHHOPPER_URL }}
+          GRAPHHOPPER_KEY: ${{ secrets.GRAPHHOPPER_KEY }}
+          GRAPHHOPPER_PROFILE: ${{ vars.GRAPHHOPPER_PROFILE || 'bus' }}
+        run: python build_shapes.py --stops colombia-stops/data/stops.csv
+
+      - name: Generate feed
+        run: |
+          args="--stops colombia-stops/data/stops.csv --zip"
+          [ -n "${{ inputs.start }}" ] && args="$args --start ${{ inputs.start }}"
+          [ -n "${{ inputs.end }}" ] && args="$args --end ${{ inputs.end }}"
+          python build_gtfs.py $args
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Validate
+        run: |
+          curl -sSL -o validator.jar https://github.com/MobilityData/gtfs-validator/releases/download/v7.1.0/gtfs-validator-7.1.0-cli.jar
+          java -jar validator.jar -i gtfs.zip -o validation -c co
+          python - <<'PY'
+          import json, sys
+          notices = json.load(open("validation/report.json"))["notices"]
+          for n in notices:
+              print(f"{n['severity']:8} {n['code']} ({n['totalNotices']})")
+          if any(n["severity"] == "ERROR" for n in notices):
+              sys.exit("GTFS validation errors")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-report
+          path: validation/
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add *.txt gtfs.zip
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Rebuild feed"
+          git push

@@ -22,6 +22,7 @@ import json
 import math
 import os
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -55,15 +56,26 @@ def load_registry(stops_csv):
         return {r["stop_id"]: (float(r["lat"]), float(r["lon"])) for r in csv.DictReader(f) if r["lat"] and r["lon"]}
 
 
-def route(points, base, key, profile):
+def request(points, base, key, profile, flexible):
     params = [("point", f"{lat},{lon}") for lat, lon in points]
-    params += [("profile", profile), ("points_encoded", "false"), ("instructions", "false"),
-               ("calc_points", "true"), ("pass_through", "true"), ("ch.disable", "true")]
+    params += [("profile", profile), ("points_encoded", "false"), ("instructions", "false"), ("calc_points", "true")]
+    if flexible:
+        params += [("pass_through", "true"), ("ch.disable", "true")]
     if key:
         params.append(("key", key))
     url = f"{base.rstrip('/')}/route?{urllib.parse.urlencode(params)}"
     with urllib.request.urlopen(url, timeout=120) as resp:
-        data = json.load(resp)
+        return json.load(resp)
+
+
+def route(points, base, key, profile):
+    """Route with pass_through (no U-turns at via points); fall back to a plain
+    request if the server does not allow flexible mode."""
+    try:
+        data = request(points, base, key, profile, flexible=True)
+    except urllib.error.HTTPError as e:
+        print(f"  pass_through refused ({e.code}: {e.read()[:200]!r}), retrying without it")
+        data = request(points, base, key, profile, flexible=False)
     path = data["paths"][0]
     return [(lat, lon) for lon, lat, *_ in path["points"]["coordinates"]], path["distance"]
 
