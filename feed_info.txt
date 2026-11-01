@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,feed_start_date,feed_end_date,feed_version,feed_contact_url
+ColombiaTransit,https://github.com/ColombiaTransit/gtfs-rapido-medellin-rionegro,es,20261101,20271231,20261101,https://github.com/ColombiaTransit/gtfs-rapido-medellin-rionegro/issues
