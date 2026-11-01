@@ -1,0 +1,37 @@
+name: Release feed
+
+on:
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: "Extra release notes (optional)"
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release with gtfs.zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          read start end version < <(python3 -c "import csv; r=next(csv.DictReader(open('feed_info.txt'))); print(r['feed_start_date'], r['feed_end_date'], r['feed_version'])")
+          fmt() { echo "${1:0:4}-${1:4:2}-${1:6:2}"; }
+          tag="$version"
+          if gh release view "$tag" >/dev/null 2>&1; then tag="$version-$(date -u +%H%M)"; fi
+          cp gtfs.zip "rapido-medellin-rionegro-gtfs-$version.zip"
+          {
+            echo "GTFS feed for Rápido Medellín Rionegro, valid **$(fmt $start) – $(fmt $end)**."
+            echo
+            echo "- Routes Rionegro ↔ Terminal del Norte (autopista; van, microbus, bus), Rionegro ↔ Terminal del Sur (Santa Elena; bus), Rionegro → Terminal del Norte (Llanogrande; bus)"
+            echo "- Stops from the colombia-stops registry, shapes routed with GraphHopper, fares as GTFS Fares v2"
+            [ -n "$NOTES" ] && { echo; echo "$NOTES"; }
+          } > notes.md
+          gh release create "$tag" "rapido-medellin-rionegro-gtfs-$version.zip" gtfs.zip \
+            --target "$GITHUB_SHA" --title "Feed $(fmt $version)" --notes-file notes.md --latest
