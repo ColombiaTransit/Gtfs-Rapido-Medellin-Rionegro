@@ -1,4 +1,5 @@
 route_id,agency_id,route_short_name,route_long_name,route_desc,route_type
-RMR-RioNegro-TdT-Medellin-Norte,RMR,,Rionegro - Terminal del Norte,Vía autopista Medellín - Bogotá,3
+RMR-RioNegro-TdT-Medellin-Norte,RMR,,Rionegro - Terminal del Norte,Vía autopista Medellín - Bogotá. Bus y microbús,3
+RMR-RioNegro-TdT-Medellin-Norte-Van,RMR,,Rionegro - Terminal del Norte (aerovan),Vía autopista Medellín - Bogotá. Van,3
 RMR-RioNegro-TdT-Medellin-Sur,RMR,,Rionegro - Terminal del Sur,Vía Santa Elena - glorieta aeropuerto JMC,3
 RMR-RioNegro-TdT-Medellin-Norte-Llanogrande,RMR,,Rionegro - Terminal del Norte por Llanogrande,Vía Llanogrande - aeropuerto JMC - autopista,3

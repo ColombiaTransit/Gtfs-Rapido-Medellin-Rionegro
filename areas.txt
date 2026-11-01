@@ -1,0 +1,5 @@
+area_id,area_name
+rionegro,Rionegro
+aeropuerto,Aeropuerto JMC
+norte,Terminal del Norte
+sur,Terminal del Sur

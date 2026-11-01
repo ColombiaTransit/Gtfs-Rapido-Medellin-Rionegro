@@ -47,12 +47,39 @@ NORTE = "CO001433"        # Terminal del Norte, Medellín
 SUR = "CO001432"          # Terminal del Sur, Medellín
 STOP_IDS = [RIONEGRO, AEROPUERTO, NORTE, SUR]
 
+# Fare networks (GTFS Fares v2): vans (aerovan) cost more than buses and
+# microbuses on the same road, so they are a separate route in their own network.
+NET_BUS = "bus"
+NET_AEROVAN = "aerovan"
+NETWORKS = [(NET_BUS, "Bus y microbús"), (NET_AEROVAN, "Aerovan")]
+
 ROUTES = [
-    # route_id, long name, desc
-    ("RMR-RioNegro-TdT-Medellin-Norte", "Rionegro - Terminal del Norte", "Vía autopista Medellín - Bogotá"),
-    ("RMR-RioNegro-TdT-Medellin-Sur", "Rionegro - Terminal del Sur", "Vía Santa Elena - glorieta aeropuerto JMC"),
+    # route_id, long name, desc, network
+    ("RMR-RioNegro-TdT-Medellin-Norte", "Rionegro - Terminal del Norte", "Vía autopista Medellín - Bogotá. Bus y microbús", NET_BUS),
+    ("RMR-RioNegro-TdT-Medellin-Norte-Van", "Rionegro - Terminal del Norte (aerovan)", "Vía autopista Medellín - Bogotá. Van", NET_AEROVAN),
+    ("RMR-RioNegro-TdT-Medellin-Sur", "Rionegro - Terminal del Sur", "Vía Santa Elena - glorieta aeropuerto JMC", NET_BUS),
     ("RMR-RioNegro-TdT-Medellin-Norte-Llanogrande", "Rionegro - Terminal del Norte por Llanogrande",
-     "Vía Llanogrande - aeropuerto JMC - autopista"),
+     "Vía Llanogrande - aeropuerto JMC - autopista", NET_BUS),
+]
+
+# Fares 2026 (COP), in force since 2026-01-09, as published by the operator via
+# DiariOriente: https://diarioriente.com/altiplano/sube-el-precio.html
+# Fare areas are the stops; a leg is priced on its first and last stop.
+FARE_AREAS = [("rionegro", "Rionegro", RIONEGRO), ("aeropuerto", "Aeropuerto JMC", AEROPUERTO),
+              ("norte", "Terminal del Norte", NORTE), ("sur", "Terminal del Sur", SUR)]
+FARE_PRODUCTS = [
+    # fare_product_id, name, amount
+    ("bus-13000", "Pasaje bus / microbús", 13000),
+    ("bus-9500", "Pasaje Terminal del Norte - Aeropuerto", 9500),
+    ("aerovan-15000", "Pasaje aerovan", 15000),
+]
+FARE_LEGS = [
+    # network, area, area, product (rules are written for both directions)
+    (NET_BUS, "rionegro", "norte", "bus-13000"),
+    (NET_BUS, "rionegro", "sur", "bus-13000"),
+    (NET_BUS, "aeropuerto", "norte", "bus-9500"),
+    (NET_BUS, "aeropuerto", "sur", "bus-13000"),
+    (NET_AEROVAN, "rionegro", "norte", "aerovan-15000"),
 ]
 
 # Patterns: list of (stop_id, minutes after departure).
@@ -72,8 +99,8 @@ SHAPE_LLANO_OUT = "llanogrande-out"
 # Services operated, per the operator's page.
 # vehicle, route_id, direction, headsign, pattern, shape, first, last, peak headway (min), base headway (min)
 SERVICES = [
-    ("Van", "RMR-RioNegro-TdT-Medellin-Norte", 0, "Medellín - Terminal del Norte", NORTE_OUT, SHAPE_NORTE_OUT, "04:30:00", "22:00:00", 6, 15),
-    ("Van", "RMR-RioNegro-TdT-Medellin-Norte", 1, "Rionegro", NORTE_IN, SHAPE_NORTE_IN, "04:30:00", "22:00:00", 6, 15),
+    ("Van", "RMR-RioNegro-TdT-Medellin-Norte-Van", 0, "Medellín - Terminal del Norte", NORTE_OUT, SHAPE_NORTE_OUT, "04:30:00", "22:00:00", 6, 15),
+    ("Van", "RMR-RioNegro-TdT-Medellin-Norte-Van", 1, "Rionegro", NORTE_IN, SHAPE_NORTE_IN, "04:30:00", "22:00:00", 6, 15),
     ("Microbus", "RMR-RioNegro-TdT-Medellin-Norte", 0, "Medellín - Terminal del Norte", NORTE_OUT, SHAPE_NORTE_OUT, "04:30:00", "22:00:00", 7, 15),
     ("Microbus", "RMR-RioNegro-TdT-Medellin-Norte", 1, "Rionegro", NORTE_IN, SHAPE_NORTE_IN, "04:30:00", "22:00:00", 7, 15),
     ("Bus", "RMR-RioNegro-TdT-Medellin-Norte", 0, "Medellín - Terminal del Norte", NORTE_OUT, SHAPE_NORTE_OUT, "05:00:00", "20:00:00", 15, 15),
@@ -139,13 +166,31 @@ def load_stops(stops_csv):
     return rows
 
 
+def write_fares():
+    """GTFS Fares v2: networks, areas, a cash fare medium, products and leg rules."""
+    write("networks.txt", ["network_id", "network_name"], [list(n) for n in NETWORKS])
+    write("areas.txt", ["area_id", "area_name"], [[a, name] for a, name, _ in FARE_AREAS])
+    write("stop_areas.txt", ["area_id", "stop_id"], [[a, stop] for a, _, stop in FARE_AREAS])
+    write("fare_media.txt", ["fare_media_id", "fare_media_name", "fare_media_type"], [["efectivo", "Efectivo", 0]])
+    write("fare_products.txt", ["fare_product_id", "fare_product_name", "fare_media_id", "amount", "currency"],
+          [[pid, name, "efectivo", f"{amount:.2f}", "COP"] for pid, name, amount in FARE_PRODUCTS])  # ISO 4217: COP has 2 decimals
+    rows = []
+    for net, a, b, product in FARE_LEGS:
+        rows.append([f"{net}-{a}-{b}", net, a, b, product])
+        rows.append([f"{net}-{b}-{a}", net, b, a, product])
+    write("fare_leg_rules.txt", ["leg_group_id", "network_id", "from_area_id", "to_area_id", "fare_product_id"], rows)
+
+
 def build(start, end, stops_csv):
     write("agency.txt", list(AGENCY), [list(AGENCY.values())])
 
     write("stops.txt", ["stop_id", "stop_name", "stop_lat", "stop_lon", "stop_url"], load_stops(stops_csv))
 
     write("routes.txt", ["route_id", "agency_id", "route_short_name", "route_long_name", "route_desc", "route_type"],
-          [[rid, "RMR", "", name, desc, 3] for rid, name, desc in ROUTES])
+          [[rid, "RMR", "", name, desc, 3] for rid, name, desc, _ in ROUTES])
+    write("route_networks.txt", ["network_id", "route_id"], [[net, rid] for rid, _, _, net in ROUTES])
+
+    write_fares()
 
     # Service calendars: buses run the same every day; vans and microbuses
     # have weekday peaks. Holidays on weekdays run the weekend pattern.
@@ -197,7 +242,8 @@ def build(start, end, stops_csv):
 
 
 GTFS_FILES = ["agency.txt", "stops.txt", "routes.txt", "trips.txt", "stop_times.txt", "frequencies.txt",
-              "calendar.txt", "calendar_dates.txt", "shapes.txt", "feed_info.txt"]
+              "calendar.txt", "calendar_dates.txt", "shapes.txt", "feed_info.txt",
+              "networks.txt", "route_networks.txt", "areas.txt", "stop_areas.txt", "fare_media.txt", "fare_products.txt", "fare_leg_rules.txt"]
 
 
 def main():

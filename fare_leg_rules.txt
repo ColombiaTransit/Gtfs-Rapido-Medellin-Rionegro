@@ -1,0 +1,11 @@
+leg_group_id,network_id,from_area_id,to_area_id,fare_product_id
+bus-rionegro-norte,bus,rionegro,norte,bus-13000
+bus-norte-rionegro,bus,norte,rionegro,bus-13000
+bus-rionegro-sur,bus,rionegro,sur,bus-13000
+bus-sur-rionegro,bus,sur,rionegro,bus-13000
+bus-aeropuerto-norte,bus,aeropuerto,norte,bus-9500
+bus-norte-aeropuerto,bus,norte,aeropuerto,bus-9500
+bus-aeropuerto-sur,bus,aeropuerto,sur,bus-13000
+bus-sur-aeropuerto,bus,sur,aeropuerto,bus-13000
+aerovan-rionegro-norte,aerovan,rionegro,norte,aerovan-15000
+aerovan-norte-rionegro,aerovan,norte,rionegro,aerovan-15000

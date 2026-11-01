@@ -1,0 +1,5 @@
+area_id,stop_id
+rionegro,CO001362
+aeropuerto,CO002641
+norte,CO001433
+sur,CO001432

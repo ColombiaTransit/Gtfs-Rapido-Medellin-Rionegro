@@ -74,8 +74,25 @@ Times and frequencies follow the operator's route page: <https://www.rapidomedel
 - The feed is frequency-based. Travel times (about 60 min via autopista, 90 min via Santa Elena or Llanogrande) are estimates.
 - The Llanogrande route is listed by the operator only from Rionegro. Its via point at Llanogrande is approximate.
 
+## Fares (GTFS Fares v2)
+
+Fares 2026 (COP, in force since 9 January 2026) as published by the operator via
+[DiariOriente](https://diarioriente.com/altiplano/sube-el-precio.html). Vans (aerovan) cost more than buses and
+microbuses on the same road, so they are a separate route (`RMR-RioNegro-TdT-Medellin-Norte-Van`) in their own
+network. Fare areas are the four stops; a leg is priced on its first and last stop. Payment is cash.
+
+| Network | Between | Fare |
+|---|---|---|
+| bus | Rionegro ↔ Terminal del Norte | 13.000 |
+| bus | Rionegro ↔ Terminal del Sur | 13.000 |
+| bus | Aeropuerto JMC ↔ Terminal del Norte | 9.500 |
+| bus | Aeropuerto JMC ↔ Terminal del Sur | 13.000 |
+| aerovan | Rionegro ↔ Terminal del Norte | 15.000 |
+
+No fare is known for Rionegro ↔ Aeropuerto JMC.
+
 ## Not yet included
 
 - Routes via Túnel de Oriente and Cauchopé (listed by the operator, no times published)
 - Airport vans and taxis (24 h, on demand)
-- Fares
+- Student fares

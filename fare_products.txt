@@ -1,0 +1,4 @@
+fare_product_id,fare_product_name,fare_media_id,amount,currency
+bus-13000,Pasaje bus / microbús,efectivo,13000.00,COP
+bus-9500,Pasaje Terminal del Norte - Aeropuerto,efectivo,9500.00,COP
+aerovan-15000,Pasaje aerovan,efectivo,15000.00,COP

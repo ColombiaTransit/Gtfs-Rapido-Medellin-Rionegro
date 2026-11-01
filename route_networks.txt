@@ -1,0 +1,5 @@
+network_id,route_id
+bus,RMR-RioNegro-TdT-Medellin-Norte
+aerovan,RMR-RioNegro-TdT-Medellin-Norte-Van
+bus,RMR-RioNegro-TdT-Medellin-Sur
+bus,RMR-RioNegro-TdT-Medellin-Norte-Llanogrande

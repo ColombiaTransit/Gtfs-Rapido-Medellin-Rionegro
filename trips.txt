@@ -1,8 +1,8 @@
 route_id,service_id,trip_id,trip_headsign,direction_id,shape_id
-RMR-RioNegro-TdT-Medellin-Norte,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-out-Van-WEEKDAY,Medellín - Terminal del Norte,0,norte-out
-RMR-RioNegro-TdT-Medellin-Norte,WEEKEND,RMR-RioNegro-TdT-Medellin-Norte-out-Van-WEEKEND,Medellín - Terminal del Norte,0,norte-out
-RMR-RioNegro-TdT-Medellin-Norte,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-in-Van-WEEKDAY,Rionegro,1,norte-in
-RMR-RioNegro-TdT-Medellin-Norte,WEEKEND,RMR-RioNegro-TdT-Medellin-Norte-in-Van-WEEKEND,Rionegro,1,norte-in
+RMR-RioNegro-TdT-Medellin-Norte-Van,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-Van-out-Van-WEEKDAY,Medellín - Terminal del Norte,0,norte-out
+RMR-RioNegro-TdT-Medellin-Norte-Van,WEEKEND,RMR-RioNegro-TdT-Medellin-Norte-Van-out-Van-WEEKEND,Medellín - Terminal del Norte,0,norte-out
+RMR-RioNegro-TdT-Medellin-Norte-Van,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-Van-in-Van-WEEKDAY,Rionegro,1,norte-in
+RMR-RioNegro-TdT-Medellin-Norte-Van,WEEKEND,RMR-RioNegro-TdT-Medellin-Norte-Van-in-Van-WEEKEND,Rionegro,1,norte-in
 RMR-RioNegro-TdT-Medellin-Norte,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-out-Microbus-WEEKDAY,Medellín - Terminal del Norte,0,norte-out
 RMR-RioNegro-TdT-Medellin-Norte,WEEKEND,RMR-RioNegro-TdT-Medellin-Norte-out-Microbus-WEEKEND,Medellín - Terminal del Norte,0,norte-out
 RMR-RioNegro-TdT-Medellin-Norte,WEEKDAY,RMR-RioNegro-TdT-Medellin-Norte-in-Microbus-WEEKDAY,Rionegro,1,norte-in
