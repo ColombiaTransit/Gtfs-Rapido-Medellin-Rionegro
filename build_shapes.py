@@ -29,6 +29,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PUBLIC_API = "https://graphhopper.com/api/1"
+# A named user agent; Cloudflare blocks the default Python-urllib one (error 1010).
+USER_AGENT = "gtfs-rapido-medellin-rionegro/1.0 (+https://github.com/ColombiaTransit/gtfs-rapido-medellin-rionegro)"
 
 RIONEGRO = "CO001362"
 AEROPUERTO = "CO002641"
@@ -64,7 +66,8 @@ def request(points, base, key, profile, flexible):
     if key:
         params.append(("key", key))
     url = f"{base.rstrip('/')}/route?{urllib.parse.urlencode(params)}"
-    with urllib.request.urlopen(url, timeout=120) as resp:
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=120) as resp:
         return json.load(resp)
 
 
@@ -74,6 +77,8 @@ def route(points, base, key, profile):
     try:
         data = request(points, base, key, profile, flexible=True)
     except urllib.error.HTTPError as e:
+        if e.code != 400:
+            raise SystemExit(f"GraphHopper request failed: HTTP {e.code} {e.read()[:200]!r}")
         print(f"  pass_through refused ({e.code}: {e.read()[:200]!r}), retrying without it")
         data = request(points, base, key, profile, flexible=False)
     path = data["paths"][0]
